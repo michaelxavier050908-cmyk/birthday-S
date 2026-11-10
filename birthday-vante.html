@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Special Day</title>
+<meta name="description" content="A birthday experience where a ribbon of memories sweeps through space, then lands in a grid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}
+</script>
+<style>
+:root{--bg:#0a0a0b;--ink:#f4f1ea;--mid:#8d8b86;--line:rgba(244,241,234,.14);--glow:#ebd5c3}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{font-family:'Inter Tight',system-ui,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#ambientFireworks{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#letterIntro,#track,#videoSection{position:relative;z-index:1}
+#track{height:900vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:transparent}
+.hl{position:absolute;left:0;right:0;font-weight:400;font-size:clamp(40px,6.7vw,130px);line-height:1;letter-spacing:-.055em;white-space:nowrap;text-align:center;will-change:transform}
+#l1{top:calc(50% - .98em)}
+#l2{top:calc(50% + .03em)}
+#l1 span,#l2 span{display:inline-block}
+#l1 span{margin-right:15vw}
+#l2 span{margin-left:15vw}
+#cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:15em;text-align:center;font-size:clamp(9px,.74vw,13px);font-weight:500;line-height:1.3;letter-spacing:.03em;text-transform:uppercase;color:var(--ink)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+#gl{z-index:1}
+.hl{z-index:3}
+.top{position:fixed;left:32px;right:32px;top:0;z-index:45;display:flex;align-items:center;justify-content:space-between;padding:20px 0;transition:transform .3s ease,opacity .3s ease}
+.top.is-hidden{transform:translateY(-110%);opacity:0;pointer-events:none}
+#glow{position:absolute;left:0;right:0;top:0;height:42%;background:linear-gradient(rgba(244,241,234,.1),rgba(244,241,234,0))}
+#cross{position:absolute;left:32px;right:32px;top:37.5%;height:1px;background:var(--line)}
+#cross i{position:absolute;left:50%;top:-.62em;margin-left:-.3em;font:400 13px 'IBM Plex Mono',monospace;color:var(--mid);background:var(--bg);padding:0 .3em;line-height:1.2}
+.logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:600;letter-spacing:.09em}
+.cake-icon{font-size:21px;line-height:1;letter-spacing:0}
+.acts{display:flex;align-items:center;gap:8px}
+.acts a{display:flex;align-items:center;gap:9px;height:32px;padding:0 15px;border:1px solid rgba(244,241,234,.55);border-radius:99px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.06em;transition:background .2s,color .2s}
+.acts a:hover{background:var(--ink);color:var(--bg)}
+.acts a i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.bot{position:absolute;left:32px;right:32px;bottom:26px;display:flex;align-items:end;font-size:12.5px;line-height:1.35;pointer-events:none}
+.bot p{color:var(--ink);max-width:21em}
+#rule{position:absolute;left:3.5vw;right:3.5vw;top:50%;height:1px;background:var(--line);transform-origin:left;transform:scaleX(0)}
+@media (max-width:760px){
+.top{left:18px;right:18px;padding:14px 0}.bot{left:18px;right:18px;bottom:18px}
+.bot p{max-width:17em;font-size:11px}
+}
+
+/* ---- Birthday unlock overlay (kept from original) ---- */
+#lock{
+  position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);color:var(--ink);text-align:center;padding:24px;
+  transition:opacity .7s ease,visibility .7s;
+}
+#lock.hidden{opacity:0;visibility:hidden;pointer-events:none}
+#lock .eyebrow{letter-spacing:.38em;font-size:.7rem;color:var(--glow);opacity:.8;margin-bottom:1.1rem;font-family:'IBM Plex Mono',monospace}
+#lock h1{font-weight:400;font-size:clamp(2rem,6.5vw,3.4rem);line-height:1.15;letter-spacing:-.03em}
+#lock .sub{font-weight:300;opacity:.8;margin-top:.9rem;font-size:clamp(.9rem,2.4vw,1.05rem)}
+.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(8px,2vw,18px);margin-top:2.2rem;width:min(92vw,460px)}
+.cd-box{padding:1rem .2rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:14px}
+.cd-num{font-size:clamp(1.7rem,7vw,2.6rem);color:var(--glow);font-variant-numeric:tabular-nums;font-family:'Inter Tight',sans-serif}
+.cd-lbl{font-size:.6rem;letter-spacing:.25em;opacity:.65;margin-top:.3rem;font-family:'IBM Plex Mono',monospace}
+.btn{
+  margin-top:2rem;padding:.95rem 2rem;border-radius:999px;cursor:pointer;color:var(--ink);
+  letter-spacing:.2em;font-size:.75rem;font-weight:500;font-family:inherit;
+  background:rgba(255,255,255,.06);border:1px solid rgba(235,213,195,.4);
+  transition:all .35s ease;box-shadow:0 0 18px rgba(235,213,195,.12);
+}
+.btn:hover{background:rgba(235,213,195,.16);box-shadow:0 0 30px rgba(235,213,195,.35);transform:translateY(-2px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn:disabled:hover{background:rgba(255,255,255,.06);box-shadow:none;transform:none}
+.cd-note{font-size:.68rem;letter-spacing:.08em;opacity:.55;margin-top:.85rem;min-height:1em;font-family:'IBM Plex Mono',monospace}
+
+#letterIntro{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:clamp(88px,12vw,128px) 24px 48px;text-align:center}
+.letter-card{width:min(100%,760px);padding:clamp(28px,6vw,64px);border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,rgba(17,17,18,.94),rgba(10,10,11,.88));backdrop-filter:blur(8px)}
+.letter-cover{width:100%}
+.letter-cover .eyebrow{margin-bottom:18px;color:var(--glow);font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.2em}
+#letter-intro-title{font-size:clamp(2.2rem,7vw,5rem);font-weight:400;letter-spacing:-.05em}
+.letter-cover p:not(.eyebrow){margin:16px auto 0;max-width:34em;color:var(--mid);line-height:1.7}
+#openLetterPreview{margin-top:30px}
+.letter-content{display:none}
+#letterIntro.is-open .letter-cover{display:none}
+#letterIntro.is-open .letter-content{display:block;animation:letter-arrive .45s ease both}
+@keyframes letter-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.letter{
+  max-height:min(65vh,680px);overflow-y:auto;padding:0 clamp(2px,2vw,16px);
+  text-align:left;line-height:1.95;font-weight:300;font-size:clamp(.92rem,2.4vw,1.02rem);
+}
+.letter p{margin:0 0 1.15rem}
+.letter .sign{font-family:'Inter Tight',sans-serif;font-style:italic;font-size:1.25rem;color:var(--glow);text-align:center;margin-top:1.6rem}
+.letter::-webkit-scrollbar{width:4px}
+.letter::-webkit-scrollbar-thumb{background:rgba(235,213,195,.35);border-radius:4px}
+.letter-close{margin:0 0 24px auto;display:block;padding:9px 14px;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--ink);font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.08em;cursor:pointer}
+
+#videoSection{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:clamp(56px,9vw,112px) 24px;border-top:1px solid var(--line)}
+.video-inner{width:min(100%,960px);opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+#videoSection.is-visible .video-inner{opacity:1;transform:translateY(0)}
+.video-eyebrow{margin-bottom:14px;color:var(--glow);font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.18em}
+#video-title{margin-bottom:28px;font-size:clamp(2rem,5vw,4rem);font-weight:400;letter-spacing:-.04em}
+#birthdayVideo{display:block;width:100%;aspect-ratio:16/9;background:#000;border:1px solid var(--line);border-radius:14px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .video-inner{transform:none}
+  .video-inner{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<div id="lock">
+  <p class="eyebrow">MENGHITUNG HARI</p>
+  <h1>Your Special Day<br>is Coming</h1>
+  <p class="sub">Buat Lo Sher dari kamiiii</p>
+  <div class="cd-grid" aria-live="off">
+    <div class="cd-box"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">HARI</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">JAM</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">MENIT</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">DETIK</div></div>
+  </div>
+  <button class="btn" id="openGiftBtn" disabled>OPEN GIFT 🎁</button>
+  <p class="cd-note" id="cd-note">Kado terkunci sampai waktunya tiba ✨</p>
+</div>
+
+<header class="top" id="siteHeader">
+  <div class="logo"><span class="cake-icon" aria-hidden="true">🎂</span>HBD NDUKKK</div>
+  <nav class="acts" aria-label="Navigasi utama">
+    <a href="#" id="openLetterBtn"><i></i>SURAT</a>
+    <a href="#videoSection">VIDEO</a>
+  </nav>
+</header>
+
+<section id="letterIntro" aria-labelledby="letter-intro-title">
+  <div class="letter-card">
+    <div class="letter-cover">
+      <p class="eyebrow">SURAT UNTUKMU</p>
+      <h1 id="letter-intro-title">Ada pesan kecil untukmu</h1>
+      <p>Sebuah surat yang ditulis khusus untuk hari istimewamu.</p>
+      <button class="btn" id="openLetterPreview" type="button">BUKA SURAT</button>
+    </div>
+    <div class="letter-content" id="letterContent" aria-live="polite">
+      <button class="letter-close" id="closeLetter" type="button">TUTUP SURAT</button>
+      <div class="letter">
+        <p>Untukmu, yang namanya selalu jadi doa paling pelan dalam hariku,</p>
+        <p>Hari ini langit terasa lebih lembut dari biasanya, seolah semesta ikut berbisik, “selamat ulang tahun” kepada seseorang yang paling berharga. Dan aku, dengan segala kata yang tak pernah cukup, ingin menuliskannya di sini untukmu.</p>
+        <p>Terima kasih sudah lahir ke dunia ini. Terima kasih sudah menjadi rumah bagi tawaku, pelukan bagi lelahku, dan cahaya kecil yang tak pernah padam di hari-hari tergelapku. Di matamu aku belajar bahwa kebahagiaan tidak selalu datang dengan ribut; kadang ia hadir sesederhana namamu di layar ponselku.</p>
+        <p>Aku masih ingat bagaimana semuanya dimulai: canggung, malu-malu, tapi hangat. Siapa sangka percakapan yang tampak biasa itu perlahan menjadi bagian terindah dari hidupku. Setiap tawamu seperti bintang jatuh yang kutangkap diam-diam, lalu kusimpan di dada.</p>
+        <p>Di usia barumu ini, semoga langkahmu selalu ringan, mimpimu diberi jalan, dan hatimu dikelilingi orang-orang yang tulus. Semoga setiap doa yang kau titipkan pada lilin malam ini sampai pada Tuhan dengan selamat, dan dijawab dengan cara paling indah.</p>
+        <p>Jika suatu hari dunia terasa terlalu berat, ingatlah ada seseorang yang bangga padamu tanpa syarat. Kamu tidak harus sempurna untuk dicintai. Kamu cukup menjadi dirimu, dan itu sudah lebih dari cukup.</p>
+        <p>Aku mungkin bukan penyair, tapi untukmu aku mau belajar menulis seribu bait. Aku mungkin bukan bulan, tapi aku ingin menjadi langit yang setia menampung cahayamu, malam demi malam.</p>
+        <p class="sign">I love you, today, tomorrow, and always. 🤍</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<canvas id="ambientFireworks" aria-hidden="true"></canvas>
+<div id="track">
+<main class="stage" id="stage">
+<h1 aria-label="Happy Birthday">
+<div class="hl" id="l1" aria-hidden="true"><span>HAPPY</span></div>
+<div class="hl" id="l2" aria-hidden="true"><span>BIRTHDAY</span></div>
+</h1>
+<div id="cap">Created with love, just for you</div>
+<div id="glow"></div>
+<div id="cross"><i>+</i></div>
+<div id="rule"></div>
+<canvas id="gl"></canvas>
+<footer class="bot">
+<p>Setiap momen yang kita lalui, disimpan di sini sebagai kenangan yang takkan hilang.</p>
+</footer>
+</main>
+</div>
+
+<section id="videoSection" aria-labelledby="video-title">
+  <div class="video-inner">
+    <p class="video-eyebrow">VIDEO UCAPAN</p>
+    <h2 id="video-title">Sebuah pesan untukmu</h2>
+    <video id="birthdayVideo" controls playsinline preload="metadata" aria-label="Video ucapan ulang tahun">
+      <source src="https://i.imgur.com/27iYI4T.mp4" type="video/mp4">
+      Browser kamu tidak mendukung pemutaran video.
+    </video>
+  </div>
+</section>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ================= CONFIG ================= */
+const PHOTOS = [
+  "https://i.imgur.com/Y2B9UAJ.jpeg",
+  "https://i.imgur.com/5gkUUCP.jpeg",
+  "https://i.imgur.com/YtM2XaY.jpeg",
+  "https://i.imgur.com/18x00z9.jpeg",
+  "https://i.imgur.com/myPF5zE.jpeg",
+  "https://i.imgur.com/jaFyMYp.jpeg",
+  "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=600&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&h=600&fit=crop&q=80"
+];
+const CAPTIONS = ["Makasih","Udah","Jadi","Sahabat","Paling","Baik","Buat","Kami"];
+const WORK = PHOTOS.map((src, i) => ({title: CAPTIONS[i], src}));
+
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const mix = (a, b, t) => a + (b - a) * t;
+const ease = t => t * t * (3 - 2 * t);
+const out = t => 1 - (1 - t) ** 3;
+const span = (p, a, b) => clamp((p - a) / (b - a));
+
+/* ---------- renderer ---------- */
+const canvas = $('gl');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setClearColor(0, 0);
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+const scene = new THREE.Scene();
+const FOV = 35, camera = new THREE.PerspectiveCamera(FOV, 1, .1, 100);
+
+/* ---------- ribbon path (exact from prompt) ---------- */
+let path, PATH_L = 1;
+const SAMPLES = 1200, pathP = [], pathT = [];
+const PH0 = -1.5, PH1 = Math.PI * 2 + 1.35;
+function buildPath() {
+  const pts = [];
+  for (let i = 0; i <= 160; i++) {
+    const t = i / 160, ph = mix(PH0, PH1, t), cs = Math.cos(ph), u = 2 * t - 1;
+    const depth = cs > 0 ? 7.6 + 16.4 * cs ** .9 : 7.6 + 2.2 * cs;
+    const edge = .84 + .5 * span(.14 - t, 0, .14) + .8 * span(t, .84, 1);
+    pts.push(new THREE.Vector3(edge * Math.sin(ph) * depth * .561, .5 * Math.sign(u) * Math.abs(u) ** 1.4 * depth * .63, -depth));
+  }
+  path = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+  path.arcLengthDivisions = 1500;
+  PATH_L = path.getLength(); pathP.length = pathT.length = 0;
+  for (let i = 0; i <= SAMPLES; i++) { const u = i / SAMPLES; pathP.push(path.getPointAt(u)); pathT.push(path.getTangentAt(u)); }
+}
+const at = (s, op, ot) => {
+  const f = clamp(s / PATH_L) * SAMPLES, i = Math.min(SAMPLES - 1, Math.floor(f)), k = f - i;
+  op.lerpVectors(pathP[i], pathP[i + 1], k); ot.lerpVectors(pathT[i], pathT[i + 1], k).normalize();
+};
+
+/* ---------- photo cards ---------- */
+const CARD_W = 2.1, CARD_H = 1.32, GAP = .03, STEP = CARD_W + GAP, NX = 28, NY = 3;
+const vs = `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+const fs = `uniform sampler2D map;uniform vec2 cover;uniform float aspect,ready,radius;varying vec2 vUv;
+void main(){
+vec2 q=(abs(vUv-.5)-.5)*vec2(aspect,1.)+radius;
+float d=length(max(q,0.))+min(max(q.x,q.y),0.)-radius;
+float px=fwidth(d),a=1.-smoothstep(-px,px,d);
+if(a<.01)discard;
+vec2 uv=vUv;if(!gl_FrontFacing)uv.x=1.-uv.x;
+vec3 c=mix(vec3(.075),texture2D(map,(uv-.5)*cover+.5).rgb,ready);
+float edge=smoothstep(-.012-px,-.012,d);
+gl_FragColor=vec4(mix(c,vec3(1.),edge*.1),a);
+}`;
+
+const cards = WORK.map((item, i) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = item.src;
+  const tex = new THREE.Texture(img);
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
+
+  const geo = new THREE.PlaneGeometry(1, 1, NX, NY);
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: vs, fragmentShader: fs, transparent: true, side: THREE.DoubleSide,
+    uniforms: {
+      map: {value: tex},
+      cover: {value: new THREE.Vector2(1, 1)},
+      aspect: {value: CARD_W / CARD_H},
+      ready: {value: 0},
+      radius: {value: .018}
+    }
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.frustumCulled = false;
+  scene.add(mesh);
+
+  const c = {i, title: item.title, tex, geo, mat, mesh, rect: null};
+  const applyCover = () => {
+    if (!img.naturalWidth) return;
+    const va = img.naturalWidth / img.naturalHeight, ca = CARD_W / CARD_H;
+    mat.uniforms.cover.value.set(va > ca ? ca / va : 1, va > ca ? 1 : va / ca);
+    mat.uniforms.ready.value = 1;
+    tex.needsUpdate = true;
+  };
+  if (img.complete) applyCover();
+  else img.addEventListener('load', applyCover);
+  return c;
+});
+/* ---------- layout ---------- */
+const GZ = 8;
+let W = 1, H = 1, asp = 1, cols = 3, rows = 2, tanH = .3153;
+const ambientCanvas = $('ambientFireworks');
+const ambientContext = ambientCanvas.getContext('2d');
+const ambientParticles = [];
+const reduceAmbientMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let nextAmbientBurst = 0, lastAmbientFrame = 0;
+function resizeAmbientCanvas() {
+  const dpr = Math.min(devicePixelRatio, 1.25);
+  ambientCanvas.width = Math.round(W * dpr);
+  ambientCanvas.height = Math.round(H * dpr);
+  ambientContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function addAmbientBurst(now) {
+  for (let burst = 0; burst < 3; burst++) {
+    const x = W * (.12 + Math.random() * .76);
+    const y = H * (.12 + Math.random() * .52);
+    for (let i = 0; i < 22 && ambientParticles.length < 264; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 16 + Math.random() * 32;
+      ambientParticles.push({
+        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        age: 0, life: 1.1 + Math.random() * .6,
+        hue: 30 + Math.random() * 24, size: .6 + Math.random() * .6
+      });
+    }
+  }
+  nextAmbientBurst = now + 700 + Math.random() * 300;
+}
+function renderAmbientFireworks(now) {
+  if (reduceAmbientMotion || document.hidden) {
+    ambientContext.clearRect(0, 0, W, H);
+    lastAmbientFrame = now;
+    return;
+  }
+  if (now - lastAmbientFrame < 40) return;
+  const dt = lastAmbientFrame ? Math.min((now - lastAmbientFrame) / 1000, .06) : 0;
+  lastAmbientFrame = now;
+  ambientContext.clearRect(0, 0, W, H);
+  if (now >= nextAmbientBurst) addAmbientBurst(now);
+
+  for (let i = ambientParticles.length - 1; i >= 0; i--) {
+    const particle = ambientParticles[i];
+    particle.age += dt;
+    particle.x += particle.vx * dt;
+    particle.y += particle.vy * dt;
+    particle.vy += 15 * dt;
+    const opacity = Math.max(0, 1 - particle.age / particle.life) * .38;
+    ambientContext.fillStyle = `hsla(${particle.hue},85%,72%,${opacity})`;
+    ambientContext.beginPath();
+    ambientContext.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ambientContext.fill();
+    if (particle.age >= particle.life) ambientParticles.splice(i, 1);
+  }
+}
+function resize() {
+  W = innerWidth; H = innerHeight; asp = W / H;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(W, H, false);
+  resizeAmbientCanvas();
+  camera.aspect = asp;
+  camera.fov = asp < 16 / 9 ? Math.atan(.561 / asp) * 360 / Math.PI : FOV;
+  camera.updateProjectionMatrix();
+  tanH = Math.tan(camera.fov * Math.PI / 360);
+  cols = asp < .9 ? 2 : 3; rows = asp < .9 ? 3 : 2;
+}
+addEventListener('resize', resize); resize(); buildPath();
+function grid(i) {
+  const vh = 2 * GZ * tanH, vw = vh * asp, gw = vw * (cols === 3 ? .74 : .88), gap = gw * .017;
+  const cw = (gw - gap * (cols - 1)) / cols, ch = cw / (CARD_W / CARD_H), gh = ch * rows + gap * 1.6 * (rows - 1);
+  const c = i % cols, r = Math.floor(i / cols);
+  return {x: -gw / 2 + cw / 2 + c * (cw + gap), y: gh / 2 - ch / 2 - r * (ch + gap * 1.6), w: cw, h: ch, vw, vh, c, r};
+}
+
+/* ---------- scroll ---------- */
+let target = 0, p = 0, frozen = false;
+const readScroll = () => { const t = $('track'); target = clamp(scrollY / (t.offsetHeight - innerHeight)); };
+addEventListener('scroll', readScroll, {passive: true}); readScroll();
+
+const siteHeader = $('siteHeader');
+let previousScrollY = scrollY, headerScrollDelta = 0;
+addEventListener('scroll', () => {
+  const currentScrollY = scrollY;
+  headerScrollDelta += currentScrollY - previousScrollY;
+  previousScrollY = currentScrollY;
+
+  if (currentScrollY < 50 || headerScrollDelta < -8) {
+    siteHeader.classList.remove('is-hidden');
+    headerScrollDelta = 0;
+  } else if (headerScrollDelta > 8) {
+    siteHeader.classList.add('is-hidden');
+    headerScrollDelta = 0;
+  }
+}, {passive: true});
+
+/* ---------- pose ---------- */
+const op = new THREE.Vector3(), ot = new THREE.Vector3(), up = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0), vp = new THREE.Vector3();
+function poseRibbon(c, head) {
+  const pos = c.geo.attributes.position, centre = head - c.i * STEP;
+  for (let iy = 0; iy <= NY; iy++) for (let ix = 0; ix <= NX; ix++) {
+    const k = iy * (NX + 1) + ix, lu = ix / NX - .5, lv = .5 - iy / NY;
+    at(centre + lu * CARD_W, op, ot);
+    up.copy(Y).addScaledVector(ot, -Y.dot(ot)).normalize();
+    vp.copy(op).addScaledVector(up, lv * CARD_H);
+    pos.setXYZ(k, vp.x, vp.y, vp.z);
+  }
+  pos.needsUpdate = true;
+}
+function poseGrid(c, q) {
+  const g = grid(c.i), pos = c.geo.attributes.position;
+  const dx = (g.c - (cols - 1) / 2) * 1.2 + (cols === 3 && g.c === 1 ? 0 : 0), dy = g.r < rows / 2 ? 1 : -1;
+  const ox = dx * g.vw * .62 * (1 - q), oy = dy * g.vh * (g.c === 1 ? .95 : .34) * (1 - q), tilt = (1 - q) * .22 * (g.c - 1 || .5) * dy;
+  const cs = Math.cos(tilt), sn = Math.sin(tilt);
+  for (let iy = 0; iy <= NY; iy++) for (let ix = 0; ix <= NX; ix++) {
+    const k = iy * (NX + 1) + ix, x = (ix / NX - .5) * g.w, y = (.5 - iy / NY) * g.h;
+    pos.setXYZ(k, g.x + ox + x * cs - y * sn, g.y + oy + x * sn + y * cs, -GZ - (1 - q) * .6 * Math.sin(ix / NX * Math.PI));
+  }
+  pos.needsUpdate = true;
+  c.rect = g;
+}
+
+const RIB_A = .14, RIB_B = .63;
+function render() {
+  const pp = p;
+  // headline runs
+  const rise = 1 - out(span(pp, 0, .12));
+  const run = mix(-50, 76, span(pp, 0, .58));
+  $('l1').style.transform = `translate3d(${run}vw,${rise * 34}vh,0)`;
+  $('l2').style.transform = `translate3d(${-run}vw,${rise * 34}vh,0)`;
+  const capA = 1 - span(pp, .52, .57);
+  $('cap').style.opacity = capA;
+  $('cap').style.transform = `translate(-50%,calc(-50% + ${rise * 34}vh))`;
+  const intro = 1 - span(pp, 0, .05);
+  for (const id of ['cross', 'glow']) $(id).style.opacity = intro;
+  $('rule').style.transform = `scaleX(${ease(span(pp, .72, .86))})`;
+  $('rule').style.top = '50%';
+
+  // ribbon → grid
+  const pr = span(pp, RIB_A, RIB_B), head = mix(0, PATH_L + cards.length * STEP, pr);
+  for (const c of cards) {
+    const s = head - c.i * STEP, end = PATH_L - CARD_W;
+    if (s < end) {
+      c.mesh.visible = s > -CARD_W;
+      c.rect = null;
+      if (c.mesh.visible) poseRibbon(c, head);
+    } else if (c.i < cols * rows) {
+      const st = mix(RIB_A, RIB_B, (end + c.i * STEP) / (PATH_L + cards.length * STEP));
+      const q = out(span(pp, st, st + .13));
+      c.mesh.visible = q > .001;
+      if (c.mesh.visible) poseGrid(c, q);
+    } else {
+      c.mesh.visible = false;
+      c.rect = null;
+    }
+  }
+  renderer.render(scene, camera);
+}
+
+/* ---------- letter section ---------- */
+const letterIntro = $('letterIntro');
+const openLetterPreview = $('openLetterPreview');
+function openLetter(scrollToSection = false) {
+  letterIntro.classList.add('is-open');
+  openLetterPreview.setAttribute('aria-expanded', 'true');
+  $('closeLetter').focus();
+  if (scrollToSection) {
+    letterIntro.scrollIntoView({behavior: reduceAmbientMotion ? 'auto' : 'smooth', block: 'start'});
+  }
+}
+function closeLetter() {
+  letterIntro.classList.remove('is-open');
+  openLetterPreview.setAttribute('aria-expanded', 'false');
+  openLetterPreview.focus();
+}
+$('openLetterBtn').addEventListener('click', e => {
+  e.preventDefault();
+  openLetter(true);
+});
+openLetterPreview.setAttribute('aria-expanded', 'false');
+openLetterPreview.addEventListener('click', () => openLetter());
+$('closeLetter').addEventListener('click', closeLetter);
+
+/* ---------- video scroll reveal ---------- */
+const videoSection = $('videoSection');
+if ('IntersectionObserver' in window) {
+  const videoObserver = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      videoSection.classList.add('is-visible');
+      videoObserver.disconnect();
+    }
+  }, {threshold: .15});
+  videoObserver.observe(videoSection);
+} else {
+  videoSection.classList.add('is-visible');
+}
+/* ---------- COUNTDOWN + UNLOCK (original date kept) ---------- */
+const BIRTHDAY = new Date(2026, 10, 9, 0, 0, 0);
+const pad = n => String(n).padStart(2, '0');
+const openBtn = $('openGiftBtn'), cdNote = $('cd-note');
+function tick() {
+  const birthdayTime = BIRTHDAY.getTime();
+  if (!Number.isFinite(birthdayTime)) {
+    openBtn.disabled = true;
+    cdNote.textContent = 'Tanggal ulang tahun tidak valid';
+    return;
+  }
+  const raw = birthdayTime - Date.now();
+  let d = Math.max(0, raw);
+  const days = Math.floor(d / 864e5), h = Math.floor(d % 864e5 / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
+  [['d', days], ['h', h], ['m', m], ['s', s]].forEach(([k, v]) => $(`cd-${k}`).textContent = pad(v));
+  if (raw <= 0) {
+    openBtn.disabled = false;
+    cdNote.textContent = 'Waktunya sudah tiba 🤍';
+  }
+}
+tick();
+setInterval(tick, 1000);
+
+openBtn.addEventListener('click', () => {
+  $('lock').classList.add('hidden');
+  // allow scroll after unlock
+  document.body.style.overflow = '';
+});
+
+// prevent scroll while locked
+document.body.style.overflow = 'hidden';
+
+/* ---------- loop ---------- */
+function loop() {
+  renderAmbientFireworks(performance.now());
+  if (!frozen) {
+    p += (target - p) * .09;
+    if (Math.abs(target - p) < .00005) p = target;
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
